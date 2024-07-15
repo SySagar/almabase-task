@@ -1,0 +1,53 @@
+import { useState } from "react";
+import { X } from 'lucide-react';
+import { Button } from "./button";
+
+export default function Modal({ onSubmit,modal,setModal }:any) {
+  const [x, setX] = useState(modal.x);
+  const [y, setY] = useState(modal.y);
+
+  const handleSubmit = () => {
+    onSubmit(x, y);
+  };
+
+
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+      <div className="bg-white p-4 rounded-md  min-w-72">
+  <div className="flex justify-between item-center mb-8">
+  <h2 className="text-xl">Edit {modal.type}</h2>
+      <div className="button bg-black bg-opacity-0 rounded-full p-1  hover:bg-gray-200 hover:cursor-pointer" onClick={() => setModal({show:false,type:"",x:0,y:0})}>
+  <X size={20} />
+</div>
+  </div>
+        <div className="p-2 flex flex-col gap-2">
+            
+        
+        <div className="mb-2">
+          <label className="block mb-1">X:</label>
+          <input
+            type="number"
+            value={x}
+            onChange={(e) => setX(parseInt(e.target.value))}
+            className="border p-1 w-full"
+          />
+        </div>
+        <div className="mb-2">
+          <label className="block mb-1">Y:</label>
+          <input
+            type="number"
+            value={y}
+            onChange={(e) => setY(parseInt(e.target.value))}
+            className="border p-1 w-full"
+          />
+        </div>
+        <Button onClick={handleSubmit} className="bg-[#0044C1] text-white px-4 py-2 rounded-md">
+          Save Changes
+        </Button>
+        
+        </div>
+      </div>
+    </div>
+  );
+}
