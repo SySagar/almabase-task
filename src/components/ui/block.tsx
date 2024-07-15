@@ -1,5 +1,6 @@
 import { GripVertical } from "lucide-react";
 import { useRef } from "react";
+import { nanoid } from 'nanoid';
 
 type BlockProps = {
   content: string;
@@ -10,7 +11,8 @@ type BlockProps = {
 export default function Block({ content, id, type }: BlockProps) {
     const dragImageRef = useRef(null);
   const handleDragStart = (e: any) => {
-    e.dataTransfer.setData("block", JSON.stringify({ id, type, content }));
+    const blockId = nanoid()
+    e.dataTransfer.setData("block", JSON.stringify({ id:blockId, type, content }));
 
 
     e.dataTransfer.setDragImage(dragImageRef.current, 0, 0);

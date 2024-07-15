@@ -2,13 +2,19 @@ import { useState } from "react";
 import { X } from 'lucide-react';
 import { Button } from "./button";
 
-export default function Modal({ onSubmit,modal,setModal }:any) {
+export default function Modal({ onSubmit,modal,setModal, deSelectBlock }:any) {
   const [x, setX] = useState(modal.x);
   const [y, setY] = useState(modal.y);
 
   const handleSubmit = () => {
     onSubmit(x, y);
+    deSelectBlock();
   };
+
+  const handleCloseModal = () => {
+    setModal({show:false,type:"",x:0,y:0});
+    deSelectBlock();
+  }
 
 
 
@@ -17,7 +23,7 @@ export default function Modal({ onSubmit,modal,setModal }:any) {
       <div className="bg-white p-4 rounded-md  min-w-72">
   <div className="flex justify-between item-center mb-8">
   <h2 className="text-xl">Edit {modal.type}</h2>
-      <div className="button bg-black bg-opacity-0 rounded-full p-1  hover:bg-gray-200 hover:cursor-pointer" onClick={() => setModal({show:false,type:"",x:0,y:0})}>
+      <div className="button bg-black bg-opacity-0 rounded-full p-1  hover:bg-gray-200 hover:cursor-pointer" onClick={handleCloseModal}>
   <X size={20} />
 </div>
   </div>

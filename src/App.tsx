@@ -18,13 +18,21 @@ function App() {
 
   const [currentBlock, setCurrentBlock] = useState<typeBlock>({} as typeBlock);
   console.log(modal);
-  // console.log("blcoks data", blocks);
+  console.log("blcoks data", blocks);
   const handleDrop = (e: any) => {
     e.preventDefault();
     const blockData = JSON.parse(e.dataTransfer.getData("block"));
     setCurrentBlock(blockData);
     setModal((modal) => ({ ...modal, show: true, type: blockData.type, idx:blockData.id }));
   };
+
+  const handleSelect = (block:typeBlock,idx:number) => {
+    console.log("type", blocks[idx]);
+    setModal({ show: true, type: blocks[idx].type, x: blocks[idx].x, y: blocks[idx].y,idx:idx});
+    const selectedBlock = document.querySelector(`.block-item-${block.id}`);
+    selectedBlock?.classList.add("selected");
+    setCurrentBlock(block);
+  }
 
   const handleDragOver = (e: any) => {
     e.preventDefault();
@@ -40,6 +48,15 @@ function App() {
     else
     setBlocks([...blocks, { ...currentBlock, x, y }]);
     setModal({ show: false, type: "", x: 0, y: 0 , idx: 0});
+
+
+  };
+
+  const deSelectBlock = () => {
+    setCurrentBlock({} as typeBlock);
+    const allBlocks = document.querySelectorAll('.selected');
+
+    allBlocks.forEach(block => block.classList.remove('selected'));
   };
 
   return (
@@ -52,12 +69,9 @@ function App() {
         >
           {blocks.map((block: typeBlock, idx) => (
             <div
+             className={`block-item-${block.id} cursor-pointer`}
               key={idx}
-              onClick={() => {
-                console.log("type", blocks[idx]);
-                setModal({ show: true, type: blocks[idx].type, x: blocks[idx].x, y: blocks[idx].y,idx});
-                setCurrentBlock(block);
-              }}
+              onClick={()=>handleSelect(block,idx)}
               style={{
                 position: "absolute",
                 top: `${block.y}px`,
@@ -71,7 +85,7 @@ function App() {
         <Sidebar />
       </div>
       {modal.show && (
-        <Modal onSubmit={handleModalSubmit} modal={modal} setModal={setModal} />
+        <Modal onSubmit={handleModalSubmit} modal={modal} setModal={setModal} deSelectBlock={deSelectBlock} />
       )}
     </>
   );
