@@ -18,7 +18,7 @@ export default function Modal({
     blocks: state.blocks,
     setBlocks: state.setBlocks,
   }));
-
+//  console.log("modal", modal);
   const handleSubmit = () => {
     const updatedModal = { ...modal, x, y };
     onSubmit(updatedModal);
@@ -33,6 +33,7 @@ export default function Modal({
   const handleDelete = () => {
     const newBlocks = blocks.filter((block:typeBlock) => block.id !== modal.blockId);
     setBlocks(newBlocks);
+    setModal({ show: false, type: "", x: 0, y: 0, blockId: 0 , idx:0});
     deSelectBlock();
   };
 
@@ -40,7 +41,7 @@ export default function Modal({
     <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
       <div className="bg-white p-4 rounded-md  min-w-80">
         <div className="flex justify-between item-center mb-8">
-          <h2 className="text-xl">Edit {modal.type}</h2>
+          <h2 className="text-xl font-medium">Edit {modal.type}</h2>
           <div
             className="button bg-black bg-opacity-0 rounded-full p-1  hover:bg-gray-200 hover:cursor-pointer"
             onClick={handleCloseModal}
