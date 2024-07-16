@@ -1,14 +1,19 @@
 import { useState } from "react";
 import { Button } from "./components/ui/button";
+import { Label } from "./components/ui/label";
 import Modal from "./components/ui/modal";
 import "./App.css";
 import Sidebar from "./components/ui/sidebar";
-import { typeBlock } from "@/types/block";
 import useBoardState, {type typeBoardState} from "./store/useBoardState";
+import useBlockList, {type typeBlock, type typeBlockList} from "./store/useBlockList";
 import Switch from "./components/ui/switch";
 
 function App() {
-  const [blocks, setBlocks] = useState<typeBlock[]>([]);
+  // const [blocks, setBlocks] = useState<typeBlock[]>([]);
+  const {blocks , setBlocks} = useBlockList<typeBlockList>((state:any) => ({
+    blocks: state.blocks,
+    setBlocks: state.setBlocks,
+  }));
   const [modal, setModal] = useState({
     show: false,
     type: "",
@@ -97,7 +102,7 @@ function App() {
       case "button":
         return <Button>{block.content}</Button>;
       case "label":
-        return <label>{block.content}</label>;
+        return <Label htmlFor="label">{block.content}</Label>;
       case "input":
         return <input placeholder={block.content} />;
       default:
@@ -115,7 +120,7 @@ function App() {
         >
           {blocks.map((block: typeBlock, idx) => (
             <div
-             className={`block-${block.type}-${block.id} cursor-pointer`}
+             className={`block-${block.type}-${block.id}`}
               key={idx}
               id={block.id.toString()}
               draggable={currentBoardState=='drag'?true:false}
