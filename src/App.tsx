@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Button } from "./components/ui/button";
-import { Label } from "./components/ui/label";
+import { componentRegistry } from "./utils/componentRegistry";
 import Modal from "./components/ui/modal";
 import "./App.css";
 import Sidebar from "./components/ui/sidebar";
@@ -9,7 +8,6 @@ import useBlockList, {type typeBlock, type typeBlockList} from "./store/useBlock
 import Switch from "./components/ui/switch";
 
 function App() {
-  // const [blocks, setBlocks] = useState<typeBlock[]>([]);
   const {blocks , setBlocks} = useBlockList<typeBlockList>((state:any) => ({
     blocks: state.blocks,
     setBlocks: state.setBlocks,
@@ -20,6 +18,7 @@ function App() {
     x: 0,
     y: 0,
     idx: 0,
+    blockId: 0,
   });
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const { currentBoardState, toggleBoardState } = useBoardState<typeBoardState>(
@@ -31,12 +30,10 @@ function App() {
   
   const [currentBlock, setCurrentBlock] = useState<typeBlock>({} as typeBlock);
   // console.log(modal.show);
-  // console.log("blcoks data", blocks);
   const handleDrop = (e: any) => {
 
     e.preventDefault();
     const blockData = JSON.parse(e.dataTransfer.getData("block"));
-    console.log("newBlocks", blockData);
     if(blocks.filter((block) => block.id === blockData.id).length > 0) {
       const [newX, newY] = [e.clientX-dragOffset.x, e.clientY-dragOffset.y];
       const newBlocks = [...blocks];
@@ -52,7 +49,7 @@ function App() {
   };
 
   const handleSelect = (block:typeBlock,idx:number) => {
-    setModal({ show: true, type: blocks[idx].type, x: blocks[idx].x, y: blocks[idx].y,idx:idx});
+    setModal({ show: true, type: blocks[idx].type, x: blocks[idx].x, y: blocks[idx].y,idx:idx,blockId:blocks[idx].id });
     const selectedBlock = document.querySelector(`.block-${block.type}-${block.id}`);
     selectedBlock?.classList.add("selected");
     setCurrentBlock(block);
@@ -62,7 +59,6 @@ function App() {
     // const selectedBlock = document.querySelector(`.block-item-${block.id}`);
     // selectedBlock?.classList.add("selected");
     const rect = e.target.getBoundingClientRect();
-    console.log("rect",rect);
     const offsetX = e.clientX - rect.left;
     const offsetY = e.clientY - rect.top;
 
@@ -75,16 +71,16 @@ function App() {
     e.preventDefault();
   };
 
-  const handleModalSubmit = (x: number, y: number) => {
+  const handleModalSubmit = (updatedModal:any) => {
     // console.log("current idx", modal.idx);
     if(blocks[modal.idx]){
       const newBlocks = [...blocks];
-      newBlocks[modal.idx] = { ...currentBlock, x, y };
+      newBlocks[modal.idx] = { ...currentBlock, ...updatedModal };
       setBlocks(newBlocks);
     }
     else
-    setBlocks([...blocks, { ...currentBlock, x, y }]);
-    setModal({ show: false, type: "", x: 0, y: 0 , idx: 0});
+    setBlocks([...blocks, { ...currentBlock, ...updatedModal }]);
+    setModal({ show: false, type: "", x: 0, y: 0 , idx: 0, blockId: 0});
 
 
   };
@@ -96,19 +92,25 @@ function App() {
     allBlocks.forEach(block => block.classList.remove('selected'));
   };
 
+  // const renderBlockContent = (block: typeBlock) => {
+  //   console.log("block", block);
+  //   switch (block.type) {
+  //     case "button":
+  //       return <Button>{block.content}</Button>;
+  //     case "label":
+  //       return <Label htmlFor="label">{block.content}</Label>;
+  //     case "input":
+  //       return <input placeholder={block.content} />;
+  //     default:
+  //       return <div>{block.content}</div>;
+  //   }
+  // };
+
   const renderBlockContent = (block: typeBlock) => {
-    console.log("block", block);
-    switch (block.type) {
-      case "button":
-        return <Button>{block.content}</Button>;
-      case "label":
-        return <Label htmlFor="label">{block.content}</Label>;
-      case "input":
-        return <input placeholder={block.content} />;
-      default:
-        return <div>{block.content}</div>;
-    }
+    const registryEntry = componentRegistry[block.type];
+    return registryEntry.render(block);
   };
+  console.log(modal)
 
   return (
     <>
