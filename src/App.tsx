@@ -4,7 +4,8 @@ import Modal from "./components/ui/modal";
 import "./App.css";
 import Sidebar from "./components/ui/sidebar";
 import { typeBlock } from "@/types/block";
-import { blocksData } from "./utils/staticData";
+import useBoardState, {type typeBoardState} from "./store/useBoardState";
+import Switch from "./components/ui/switch";
 
 function App() {
   const [blocks, setBlocks] = useState<typeBlock[]>([]);
@@ -15,23 +16,54 @@ function App() {
     y: 0,
     idx: 0,
   });
-
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const { currentBoardState, toggleBoardState } = useBoardState<typeBoardState>(
+    (state:any) => ({
+      currentBoardState: state.currentBoardState,
+      toggleBoardState: state.toggleBoardState,
+    })
+  );
+  
   const [currentBlock, setCurrentBlock] = useState<typeBlock>({} as typeBlock);
-  console.log(modal);
-  console.log("blcoks data", blocks);
+  // console.log(modal.show);
+  // console.log("blcoks data", blocks);
   const handleDrop = (e: any) => {
+
     e.preventDefault();
     const blockData = JSON.parse(e.dataTransfer.getData("block"));
+    console.log("newBlocks", blockData);
+    if(blocks.filter((block) => block.id === blockData.id).length > 0) {
+      const [newX, newY] = [e.clientX-dragOffset.x, e.clientY-dragOffset.y];
+      const newBlocks = [...blocks];
+      const blockIdx = newBlocks.findIndex((block) => block.id === blockData.id);
+      newBlocks[blockIdx] = { ...blockData, x: newX, y: newY, type: blockData.type };
+      
+      setBlocks(newBlocks);
+      return;
+    }
+
     setCurrentBlock(blockData);
     setModal((modal) => ({ ...modal, show: true, type: blockData.type, idx:blockData.id }));
   };
 
   const handleSelect = (block:typeBlock,idx:number) => {
-    console.log("type", blocks[idx]);
     setModal({ show: true, type: blocks[idx].type, x: blocks[idx].x, y: blocks[idx].y,idx:idx});
-    const selectedBlock = document.querySelector(`.block-item-${block.id}`);
+    const selectedBlock = document.querySelector(`.block-${block.type}-${block.id}`);
     selectedBlock?.classList.add("selected");
     setCurrentBlock(block);
+  }
+
+  const handleDrag = (e:any) => {
+    // const selectedBlock = document.querySelector(`.block-item-${block.id}`);
+    // selectedBlock?.classList.add("selected");
+    const rect = e.target.getBoundingClientRect();
+    console.log("rect",rect);
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+
+    setDragOffset({ x: offsetX, y: offsetY });
+
+    e.dataTransfer.setData("block", JSON.stringify({ id: e.target.id, type: e.target.className.split('-')[1], content: e.target.innerText }));
   }
 
   const handleDragOver = (e: any) => {
@@ -39,7 +71,7 @@ function App() {
   };
 
   const handleModalSubmit = (x: number, y: number) => {
-    console.log("current idx", modal.idx);
+    // console.log("current idx", modal.idx);
     if(blocks[modal.idx]){
       const newBlocks = [...blocks];
       newBlocks[modal.idx] = { ...currentBlock, x, y };
@@ -59,6 +91,20 @@ function App() {
     allBlocks.forEach(block => block.classList.remove('selected'));
   };
 
+  const renderBlockContent = (block: typeBlock) => {
+    console.log("block", block);
+    switch (block.type) {
+      case "button":
+        return <Button>{block.content}</Button>;
+      case "label":
+        return <label>{block.content}</label>;
+      case "input":
+        return <input placeholder={block.content} />;
+      default:
+        return <div>{block.content}</div>;
+    }
+  };
+
   return (
     <>
       <div className="flex flex-row min-h-screen">
@@ -69,18 +115,24 @@ function App() {
         >
           {blocks.map((block: typeBlock, idx) => (
             <div
-             className={`block-item-${block.id} cursor-pointer`}
+             className={`block-${block.type}-${block.id} cursor-pointer`}
               key={idx}
-              onClick={()=>handleSelect(block,idx)}
+              id={block.id.toString()}
+              draggable={currentBoardState=='drag'?true:false}
+              onDragStart={handleDrag}
+              onClick={()=>currentBoardState=='edit'?handleSelect(block,idx):handleDrag}
               style={{
                 position: "absolute",
                 top: `${block.y}px`,
                 left: `${block.x}px`,
               }}
             >
-              {block.content}
+              {renderBlockContent(block)}
             </div>
           ))}
+           <div className="flex flex-col p-4">
+          <Switch  toggleBoardState={toggleBoardState} currentBoardState={currentBoardState} />
+        </div>
         </div>
         <Sidebar />
       </div>

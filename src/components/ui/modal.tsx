@@ -16,6 +16,10 @@ export default function Modal({ onSubmit,modal,setModal, deSelectBlock }:any) {
     deSelectBlock();
   }
 
+  const handleDelete = () => {
+    deSelectBlock();
+  }
+
 
 
   return (
@@ -48,9 +52,14 @@ export default function Modal({ onSubmit,modal,setModal, deSelectBlock }:any) {
             className="border p-1 w-full"
           />
         </div>
-        <Button onClick={handleSubmit} className="bg-[#0044C1] text-white px-4 py-2 rounded-md">
+        <div className="flex flex-row gap-2 mt-4">
+        <Button onClick={handleSubmit} className="bg-[#0044C1] flex flex-1 text-white px-4 py-2 rounded-md">
           Save Changes
         </Button>
+        <Button onClick={handleDelete} className="bg-[#e32636] flex flex-1 text-white px-4 py-2 rounded-md">
+          Delete
+        </Button>
+        </div>
         
         </div>
       </div>

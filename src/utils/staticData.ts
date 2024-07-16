@@ -1,14 +1,14 @@
 export const blocksData = [
     {
-        content: "Block 1",
+        content: "Button",
         type: "button",
     },
     {
-        content: "Block 2",
+        content: "Label",
         type: "label",
     },
     {
-        content: "Block 3",
+        content: "Input",
         type: "input",
     }
 ];
