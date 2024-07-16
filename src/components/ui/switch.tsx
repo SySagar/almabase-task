@@ -2,17 +2,18 @@ import React from 'react';
 
 type SwitchProps = {
   toggleBoardState: (newState: 'edit' | 'drag') => void;
+  toggleCursor: (newState: 'cursor-grab' | 'cursor-auto') => void;
   currentBoardState: string;
 };
 
-const Switch: React.FC<SwitchProps> = ({ toggleBoardState, currentBoardState }) => {
+const Switch: React.FC<SwitchProps> = ({ toggleBoardState, currentBoardState,toggleCursor }) => {
 
 
   const handleClick = (newState: 'edit' | 'drag') => {
     if (newState === currentBoardState) return; 
 
     toggleBoardState(newState);
-
+    toggleCursor(newState === 'drag' ? 'cursor-grab' : 'cursor-auto');
   };
 
   return (

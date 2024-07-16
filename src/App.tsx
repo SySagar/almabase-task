@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { componentRegistry } from "./utils/componentRegistry";
 import Modal from "./components/ui/modal";
+import { Button } from "./components/ui/button";
 import "./App.css";
 import Sidebar from "./components/ui/sidebar";
 import useBoardState, { type typeBoardState } from "./store/useBoardState";
@@ -8,7 +9,10 @@ import useBlockList, {
   type typeBlock,
   type typeBlockList,
 } from "./store/useBlockList";
+import useCursor, { type typeCursor } from "./store/useCursor";
 import Switch from "./components/ui/switch";
+import { cn } from "./lib/utils";
+import { Pencil } from "lucide-react";
 
 function App() {
   const { blocks, setBlocks } = useBlockList<typeBlockList>((state: any) => ({
@@ -30,9 +34,14 @@ function App() {
       toggleBoardState: state.toggleBoardState,
     })
   );
+  const { cursorType, toggleCursor } = useCursor<typeCursor>((state: any) => ({
+    cursorType: state.cursorType,
+    toggleCursor: state.toggleCursor,
+  }));
 
-  console.log("blocks", blocks);
+  // console.log("blocks", blocks);
   const [currentBlock, setCurrentBlock] = useState<typeBlock>({} as typeBlock);
+
   const handleDrop = (e: any) => {
     e.preventDefault();
     const blockData = JSON.parse(e.dataTransfer.getData("block"));
@@ -82,8 +91,7 @@ function App() {
     setCurrentBlock(block);
   };
 
-
-  const handleDrag = (e: any) => {
+  const handleDragStart = (e: any) => {
     const rect = e.target.getBoundingClientRect();
     const offsetX = e.clientX - rect.left;
     const offsetY = e.clientY - rect.top;
@@ -97,6 +105,30 @@ function App() {
       "block",
       JSON.stringify(blockData)
     );
+
+    const img = new Image();
+    img.src = "";
+    e.dataTransfer.setDragImage(img, 0, 0);
+  };
+
+  const handleDrag = (e: any) => {
+    const blockId = e.target.id;
+    const blockData = blocks.find((block) => block.id.toString() === blockId);
+
+    if (blockData) {
+      const newX = e.clientX - dragOffset.x;
+      const newY = e.clientY - dragOffset.y;
+      const newBlocks = [...blocks];
+      const blockIdx = newBlocks.findIndex(
+        (block) => block.id.toString() === blockId
+      );
+      newBlocks[blockIdx] = {
+        ...blockData,
+        x: newX,
+        y: newY,
+      };
+      setBlocks(newBlocks);
+    }
   };
 
   const handleDragOver = (e: any) => {
@@ -120,20 +152,6 @@ function App() {
     allBlocks.forEach((block) => block.classList.remove("selected"));
   };
 
-  // const renderBlockContent = (block: typeBlock) => {
-  //   console.log("block", block);
-  //   switch (block.type) {
-  //     case "button":
-  //       return <Button>{block.content}</Button>;
-  //     case "label":
-  //       return <Label htmlFor="label">{block.content}</Label>;
-  //     case "input":
-  //       return <input placeholder={block.content} />;
-  //     default:
-  //       return <div>{block.content}</div>;
-  //   }
-  // };
-
   const renderBlockContent = (block: typeBlock) => {
     const registryEntry = componentRegistry[block.type];
     return registryEntry.render(block);
@@ -143,21 +161,23 @@ function App() {
     <>
       <div className="flex flex-row min-h-screen">
         <div
-          className="flex flex-row flex-1 w-full border-4 relative bg-[#F3F3F3]"
+          className={cn(
+            "board flex flex-row flex-1 w-full border-4 relative bg-[#F3F3F3]",
+            cursorType
+          )}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
         >
           {blocks.map((block: typeBlock, idx) => (
             <div
-              className={`block-${block.type}-${block.id}`}
+              className={`block-${block.type}-${block.id} flex flex-row justify-center items-center gap-1`}
               key={idx}
               id={block.id.toString()}
               draggable={currentBoardState == "drag" ? true : false}
-              onDragStart={handleDrag}
+              onDragStart={handleDragStart}
+              onDrag={handleDrag}
               onClick={() =>
-                currentBoardState == "edit"
-                  ? handleSelect(block, idx)
-                  : handleDrag
+                currentBoardState == "edit"?handleDragStart : null
               }
               style={{
                 position: "absolute",
@@ -166,11 +186,18 @@ function App() {
               }}
             >
               {renderBlockContent(block)}
+              { currentBoardState == "edit" &&
+                    <Button variant={"ghost"} size={"sm"} className="cursor-pointer p-1 rounded-xl w-7 h-7 " onClick={()=>handleSelect(block,idx)}>
+                    <Pencil className="h-4 w-4 hover:stroke-blue-700"  />
+                  </Button>
+              
+              }
             </div>
           ))}
           <div className="flex flex-col p-4">
             <Switch
               toggleBoardState={toggleBoardState}
+              toggleCursor={toggleCursor}
               currentBoardState={currentBoardState}
             />
           </div>
