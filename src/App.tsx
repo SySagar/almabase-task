@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { componentRegistry } from "./utils/componentRegistry";
 import Modal from "./components/ui/modal";
 import { Button } from "./components/ui/button";
@@ -14,7 +14,6 @@ import Switch from "./components/ui/switch";
 import { cn } from "./lib/utils";
 import { Pencil } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast"
-import { time } from "console";
 
 function App() {
   const { blocks, setBlocks } = useBlockList<typeBlockList>((state: any) => ({
