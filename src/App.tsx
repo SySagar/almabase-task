@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useEffect, useState, useCallback } from "react";
 import { componentRegistry } from "./utils/componentRegistry";
 import Modal from "./components/ui/modal";
 import { Button } from "./components/ui/button";
@@ -13,6 +13,8 @@ import useCursor, { type typeCursor } from "./store/useCursor";
 import Switch from "./components/ui/switch";
 import { cn } from "./lib/utils";
 import { Pencil } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast"
+import { time } from "console";
 
 function App() {
   const { blocks, setBlocks } = useBlockList<typeBlockList>((state: any) => ({
@@ -38,8 +40,25 @@ function App() {
     cursorType: state.cursorType,
     toggleCursor: state.toggleCursor,
   }));
+  const { toast } = useToast();
 
-  // console.log("blocks", blocks);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      saveToWorkspace();
+    }, 3000); 
+
+    return () => clearTimeout(timeout);
+  }, [blocks]);
+
+  const saveToWorkspace = useCallback(() => {
+    localStorage.setItem("blocks", JSON.stringify(blocks));
+    toast({
+      description: "Workspace saved",
+    });
+  }
+  , [blocks]);
+
+  console.log("blocks", blocks);
   const [currentBlock, setCurrentBlock] = useState<typeBlock>({} as typeBlock);
 
   const handleDrop = (e: any) => {
@@ -69,6 +88,8 @@ function App() {
       show: true,
       type: blockData.type,
       idx: blockData.id,
+      x: e.clientX - dragOffset.x,
+      y: e.clientY - dragOffset.y,
     }));
   };
 
