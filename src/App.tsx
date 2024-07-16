@@ -187,7 +187,7 @@ function App() {
       <div className="flex flex-row min-h-screen">
         <div
           className={cn(
-            "board flex flex-row flex-1 w-full border-4 relative bg-[#F3F3F3] overflow-scroll md:overflow-auto",
+            "board flex flex-row flex-1 w-full border-4 relative bg-[#F3F3F3] overflow-scroll md:overflow-auto m-4 sm:m-0",
             cursorType
           )}
           onDrop={handleDrop}
@@ -227,7 +227,7 @@ function App() {
             />
           </div>
         </div>
-        <Button size={'icon'} variant={'ghost'} className="opener absolute right-0 top-5" onClick={handleMobileOpen}>
+        <Button size={'icon'} variant={'ghost'} className="opener fixed md:absolute right-0 top-5 " onClick={handleMobileOpen}>
           <ChevronLeft />
         </Button>
         <div className="sidebar">
