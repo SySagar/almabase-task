@@ -11,3 +11,27 @@
   .board * {
     cursor: inherit;
   }
+
+  @keyframes oscillate {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(-10px);
+    }
+  }
+  
+  .opener {
+    animation: oscillate 2s infinite;
+  }
+  
+
+  @media only screen and (max-width: 750px) {
+    .sidebar{
+      display: none!important;
+    }
+
+    .open-sidebar{
+      display: block!important;
+    }
+  }

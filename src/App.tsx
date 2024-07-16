@@ -12,7 +12,7 @@ import useBlockList, {
 import useCursor, { type typeCursor } from "./store/useCursor";
 import Switch from "./components/ui/switch";
 import { cn } from "./lib/utils";
-import { Pencil } from "lucide-react";
+import { Pencil, ChevronLeft } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast"
 
 function App() {
@@ -165,6 +165,11 @@ function App() {
     setModal({ show: false, type: "", x: 0, y: 0, idx: 0, blockId: 0 });
   };
 
+  const handleMobileOpen = () => {
+    const sidebar = document.querySelector(".sidebar");
+    sidebar?.classList.toggle("open-sidebar");
+  }
+
   const deSelectBlock = () => {
     setCurrentBlock({} as typeBlock);
     const allBlocks = document.querySelectorAll(".selected");
@@ -182,7 +187,7 @@ function App() {
       <div className="flex flex-row min-h-screen">
         <div
           className={cn(
-            "board flex flex-row flex-1 w-full border-4 relative bg-[#F3F3F3]",
+            "board flex flex-row flex-1 w-full border-4 relative bg-[#F3F3F3] overflow-scroll md:overflow-auto",
             cursorType
           )}
           onDrop={handleDrop}
@@ -222,7 +227,12 @@ function App() {
             />
           </div>
         </div>
+        <Button size={'icon'} variant={'ghost'} className="opener absolute right-0 top-5" onClick={handleMobileOpen}>
+          <ChevronLeft />
+        </Button>
+        <div className="sidebar">
         <Sidebar />
+        </div>
       </div>
       {modal.show && (
         <Modal

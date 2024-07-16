@@ -18,7 +18,7 @@ const Switch: React.FC<SwitchProps> = ({ toggleBoardState, currentBoardState,tog
 
   return (
     <div
-      className={`flex items-center space-x-2 absolute end-10 bottom-5 rounded-xl border-2 p-1 px-2 `}
+      className={`flex items-center space-x-2 md:absolute md:end-10 md:bottom-5 rounded-xl border-2 p-1 px-2 fixed bottom-10 right-10`}
     >
       <label
         htmlFor="edit"

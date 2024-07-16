@@ -1,7 +1,7 @@
 import Block from "./block";
 import { blocksData } from "@/utils/staticData";
 import { Button } from "./button";
-import {Download} from 'lucide-react';
+import {Download,X} from 'lucide-react';
 import FileSaver from 'file-saver';
 
 export default function Sidebar() {
@@ -13,10 +13,18 @@ export default function Sidebar() {
     FileSaver.saveAs(blob, 'board-data.json');
   };
 
+  const handleMobileClose = () => {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar?.classList.remove('open-sidebar')
+  };
+
   return (
-    <div className="bg-[#2D2D2D] w-72 h-screen  flex flex-col justify-start items-center text-white p-4 relative">
-      <div className="mb-2 w-full">
-        <h1 className="text-xl font-medium tracking-wide">BLOCKS</h1>
+    <div className="bg-[#2D2D2D] w-48 sm:w-60 md:w-72 h-screen  flex flex-col justify-start items-center text-white p-4 relative">
+      <div className="mb-2 w-full flex justify-between items-center">
+        <h1 className="text-lg md:text-xl font-medium tracking-wide">BLOCKS</h1>
+         <Button variant={'ghost'} onClick={handleMobileClose}>
+          <X className="h-4 w-4" /> 
+         </Button>
       </div>
       <div className="blocks flex flex-col gap-2 mt-2  w-full">
         {blocksData.map((block, idx) => (

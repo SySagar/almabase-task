@@ -20,7 +20,7 @@ export default function Block({ content, id, type }: BlockProps) {
 
   return (
     <div
-      className="p-2 py-3 flex items-center gap-2 bg-white text-black rounded-sm cursor-grab"
+      className="md:p-2 md:py-3 p-1 py-2 flex items-center gap-2 bg-white text-black rounded-sm cursor-grab"
       key={id}
       ref={dragImageRef}
       draggable
