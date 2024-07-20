@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { componentRegistry } from "./utils/componentRegistry";
 import Modal from "./components/ui/modal";
 import { Button } from "./components/ui/button";
@@ -13,7 +13,8 @@ import useCursor, { type typeCursor } from "./store/useCursor";
 import Switch from "./components/ui/switch";
 import { cn } from "./lib/utils";
 import { Pencil, ChevronLeft } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast";
+import { throttle } from "lodash";
 
 function App() {
   const { blocks, setBlocks } = useBlockList<typeBlockList>((state: any) => ({
@@ -28,6 +29,7 @@ function App() {
     idx: 0,
     blockId: 0,
   });
+  const [counter, setCounter] = useState(0);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const { currentBoardState, toggleBoardState } = useBoardState<typeBoardState>(
     (state: any) => ({
@@ -44,7 +46,7 @@ function App() {
   useEffect(() => {
     const timeout = setTimeout(() => {
       saveToWorkspace();
-    }, 3000); 
+    }, 3000);
 
     return () => clearTimeout(timeout);
   }, [blocks]);
@@ -54,8 +56,7 @@ function App() {
     toast({
       description: "Workspace saved",
     });
-  }
-  , [blocks]);
+  }, [blocks]);
 
   console.log("blocks", blocks);
   const [currentBlock, setCurrentBlock] = useState<typeBlock>({} as typeBlock);
@@ -121,20 +122,18 @@ function App() {
     const blockId = e.target.id;
     const blockData = blocks.find((block) => block.id.toString() === blockId);
 
-    e.dataTransfer.setData(
-      "block",
-      JSON.stringify(blockData)
-    );
+    e.dataTransfer.setData("block", JSON.stringify(blockData));
 
     const img = new Image();
     img.src = "";
     e.dataTransfer.setDragImage(img, 0, 0);
   };
 
-  const handleDrag = (e: any) => {
-    const blockId = e.target.id;
-    const blockData = blocks.find((block) => block.id.toString() === blockId);
 
+  const handleDrag = useCallback(throttle((e: any) => {
+    const blockId = e.target.id;
+    console.log("dragging");
+    const blockData = blocks.find((block) => block.id.toString() === blockId);
     if (blockData) {
       const newX = e.clientX - dragOffset.x;
       const newY = e.clientY - dragOffset.y;
@@ -149,8 +148,7 @@ function App() {
       };
       setBlocks(newBlocks);
     }
-  };
-
+  },100), []);
   const handleDragOver = (e: any) => {
     e.preventDefault();
   };
@@ -168,7 +166,7 @@ function App() {
   const handleMobileOpen = () => {
     const sidebar = document.querySelector(".sidebar");
     sidebar?.classList.toggle("open-sidebar");
-  }
+  };
 
   const deSelectBlock = () => {
     setCurrentBlock({} as typeBlock);
@@ -202,7 +200,7 @@ function App() {
               onDragStart={handleDragStart}
               onDrag={handleDrag}
               onClick={() =>
-                currentBoardState == "edit"?handleDragStart : null
+                currentBoardState == "edit" ? handleDragStart : null
               }
               style={{
                 position: "absolute",
@@ -211,12 +209,16 @@ function App() {
               }}
             >
               {renderBlockContent(block)}
-              { currentBoardState == "edit" &&
-                    <Button variant={"ghost"} size={"sm"} className="cursor-pointer p-1 rounded-xl w-7 h-7 " onClick={()=>handleSelect(block,idx)}>
-                    <Pencil className="h-4 w-4 hover:stroke-blue-700"  />
-                  </Button>
-              
-              }
+              {currentBoardState == "edit" && (
+                <Button
+                  variant={"ghost"}
+                  size={"sm"}
+                  className="cursor-pointer p-1 rounded-xl w-7 h-7 "
+                  onClick={() => handleSelect(block, idx)}
+                >
+                  <Pencil className="h-4 w-4 hover:stroke-blue-700" />
+                </Button>
+              )}
             </div>
           ))}
           <div className="flex flex-col p-4">
@@ -227,11 +229,16 @@ function App() {
             />
           </div>
         </div>
-        <Button size={'icon'} variant={'ghost'} className="opener fixed md:absolute right-0 top-5 " onClick={handleMobileOpen}>
+        <Button
+          size={"icon"}
+          variant={"ghost"}
+          className="opener fixed md:absolute right-0 top-5 "
+          onClick={handleMobileOpen}
+        >
           <ChevronLeft />
         </Button>
         <div className="sidebar">
-        <Sidebar />
+          <Sidebar />
         </div>
       </div>
       {modal.show && (

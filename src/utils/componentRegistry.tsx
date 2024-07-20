@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export type typeComponentRegistry = {
   [key: string]: {
@@ -29,12 +30,16 @@ export const componentRegistry: typeComponentRegistry = {
     ],
   },
   label: {
-    render: ({ content, fontSize, fontWeight }: { content: string; fontSize?: string; fontWeight?: string }) => {
-      return (
-        <Label style={{ fontSize, fontWeight }}>
-          {content}
-        </Label>
-      );
+    render: ({
+      content,
+      fontSize,
+      fontWeight,
+    }: {
+      content: string;
+      fontSize?: string;
+      fontWeight?: string;
+    }) => {
+      return <Label style={{ fontSize, fontWeight }}>{content}</Label>;
     },
     properties: [
       {
@@ -60,7 +65,7 @@ export const componentRegistry: typeComponentRegistry = {
       },
     ],
   },
-  input:{
+  input: {
     render: ({ placeholder }: { placeholder: string }) => {
       return <Input placeholder={placeholder} />;
     },
@@ -71,7 +76,38 @@ export const componentRegistry: typeComponentRegistry = {
         field: ({ props }: any) => {
           return <Input {...props} />;
         },
+      },
+    ],
+  },
+  radio: {
+    render: ({ items }: { items: string }) => {
+
+      const arrItems = items.split(",").map((item: string) => item.trim());
+      return (
+        <RadioGroup defaultValue="option-one">
+         {
+            arrItems.map((item, idx) => {
+              return (
+                <div className="flex items-center space-x-2">
+                <RadioGroupItem value={item} id={item} />
+                <Label htmlFor={`option-${idx}`}>{item}</Label>
+              </div>
+              )
+            })
+         }
+         
+        </RadioGroup>
+      );
+    },
+    properties: [
+      {
+        name: "items",
+        type: "array",
+        field: ({ props }: any) => {
+          return <Input {...props} />;
         },
-        ],
-  }
+      },
+    ],
+    
+  },
 };

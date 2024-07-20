@@ -10,5 +10,9 @@ export const blocksData = [
     {
         content: "Input",
         type: "input",
+    },
+    {
+        content: "Radio",
+        type: "radio",
     }
 ];
